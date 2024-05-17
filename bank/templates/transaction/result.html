@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Transaction - My Bank App{% endblock %}
+
+{% block content %}
+    <h1>Bank Transactions</h1>
+    <div class="transaction-buttons">
+        <button onclick="location.href='{{ url_for('show_balance') }}'">Show Balance</button>
+        <button onclick="location.href='{{ url_for('withdraw') }}'">Withdraw</button>
+        <button onclick="location.href='{{ url_for('deposit') }}'">Deposit</button>
+    </div>
+{% endblock %}

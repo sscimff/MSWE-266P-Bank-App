@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Deposit - My Flask App{% endblock %}
+
+{% block content %}
+    <div class="transaction-buttons">
+      <button onclick="location.href='{{ url_for('show_balance') }}'">Show Balance</button>
+      <button onclick="location.href='{{ url_for('withdraw') }}'">Withdraw</button>
+      <button onclick="location.href='{{ url_for('deposit') }}'">Deposit</button>
+    </div>
+    <h2>Deposit</h2>
+    <form method="POST" action="{{ url_for('deposit') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.amount.label }}<br>
+            {{ form.amount(size=20) }}<br>
+            {% if form.amount.errors %}
+                <ul class="errors">
+                    {% for error in form.amount.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+{% endblock %}
