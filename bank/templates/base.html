@@ -4,13 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My Flask App{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
     <header>
         <h1>Bank app</h1>
         <h2>Welcome</h2>
+        <nav>
+            {% if g.user %}
+                <button onclick="location.href='{{ url_for('user.logout') }}'">Logout</button>
+            {% else %}
+                <button onclick="location.href='{{ url_for('user.login') }}'">Login</button>
+                <button onclick="location.href='{{ url_for('user.register_start') }}'">Register</button>
+            {% endif %}
+
+        </nav>
     </header>
 
     <main>
@@ -19,7 +28,7 @@
     <footer>
         <p>&copy; 2024 My Flask App</p>
     </footer>
-    
+
     {% block scripts %}{% endblock %}
 </body>
 </html>
