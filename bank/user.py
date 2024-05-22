@@ -59,7 +59,11 @@ def login():
         flash(error)
 
     if request.method == 'GET' and g.user is not None:
-        return redirect(url_for('index'))
+        return redirect(url_for('transaction.index'))
+
+    target = request.args.get('target')
+    if target and len(target) > 0:
+        return check_redirect(target)
     return render_template('login.html', form=form)
 
 # Logout
@@ -171,7 +175,9 @@ def register():
                 username=username, password=hashed_password, balance=float(initial_amount))
             db.session.add(new_user)
             db.session.commit()
-            session['success_message'] = 'Registration successful!'
-            return redirect(url_for('index'))
+            # session['success_message'] = 'Registration successful!'
+            flash('Registration successful!', 'success')
+            return redirect(url_for('transaction.index'))
+
 
     return render_template('register.html', username=username)

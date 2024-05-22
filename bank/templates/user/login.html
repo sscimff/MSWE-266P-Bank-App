@@ -14,6 +14,7 @@
       </ul>
     {% endif %}
   {% endwith %}
+
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -38,13 +39,13 @@
     <input type="submit" value="Log In">
   </form>
 
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul class="flash-messages">
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
+{#  {% with messages = get_flashed_messages() %}#}
+{#    {% if messages %}#}
+{#      <ul class="flash-messages">#}
+{#        {% for message in messages %}#}
+{#          <li>{{ message }}</li>#}
+{#        {% endfor %}#}
+{#      </ul>#}
+{#    {% endif %}#}
+{#  {% endwith %}#}
 {% endblock %}
