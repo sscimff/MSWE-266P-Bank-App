@@ -10,6 +10,7 @@
         {% endfor %}
         <p>Username should be between 1 and 127 characters long</p>
         <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>

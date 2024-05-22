@@ -5,9 +5,9 @@
 {% block content %}
     <section class="register-form">
         <h1>Register</h1>
-        {% for message in get_flashed_messages() %}
-            <div class="flash">{{ message }}</div>
-        {% endfor %}
+{#        {% for message in get_flashed_messages() %}#}
+{#            <div class="flash">{{ message }}</div>#}
+{#        {% endfor %}#}
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul class="flash-messages">
@@ -19,6 +19,7 @@
         {% endwith %}
         <p>Password should be between 1 and 127 characters long</p>
         <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" value="{{ username }}" required>
