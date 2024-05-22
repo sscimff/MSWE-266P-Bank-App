@@ -77,7 +77,7 @@ def logout():
     if form.validate_on_submit():
         session.clear()
         flash('You have been successfully logged out.')
-        return redirect(url_for('index'))
+        return redirect(url_for('transaction.index'))
     return render_template('logout.html', form=form)
 
 
