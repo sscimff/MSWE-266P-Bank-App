@@ -22,7 +22,7 @@ pip install -r requirements.txt
 
 ```shell=
 cd bank
-flask run
+flask run -port 8000
 ```
 
 ## Note

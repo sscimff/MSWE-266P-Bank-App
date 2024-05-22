@@ -1,14 +1,4 @@
-{% extends 'base.html' %}
-
-{% block title %}Transaction - My Bank App{% endblock %}
-
-{% block content %}
-  <div class="transaction-buttons">
-    <button onclick="location.href='{{ url_for('show_balance') }}'">Show Balance</button>
-    <button onclick="location.href='{{ url_for('withdraw') }}'">Withdraw</button>
-    <button onclick="location.href='{{ url_for('deposit') }}'">Deposit</button>
-  </div>
-  <h2>Show Balance</h2>
-    {{ account.username }}
-    {{ "%.2f"|format(account.balance) }}
-{% endblock %}
+{% extends 'transaction/index.html' %} {% block title %}Transaction - My Bank
+App{% endblock %} {% block content %}
+<h2>Show Balance</h2>
+{{ account.username }} {{ "%.2f"|format(account.balance) }} {% endblock %} Í

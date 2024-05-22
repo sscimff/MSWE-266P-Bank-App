@@ -1,38 +1,24 @@
-{% extends 'base.html' %}
+{% extends 'transaction/index.html' %} {% block title %}Transaction{% endblock
+%} {% block content %} {% with messages =
+get_flashed_messages(with_categories=true) %} {% if messages %} {% for category,
+message in messages %}
+<div class="alert alert-{{ category }}">{{ message }}</div>
+{% endfor %} {% endif %} {% endwith %}
 
-{% block title %}Transaction - My Bank App{% endblock %}
-
-{% block content %}
-    <div class="transaction-buttons">
-      <button onclick="location.href='{{ url_for('show_balance') }}'">Show Balance</button>
-      <button onclick="location.href='{{ url_for('withdraw') }}'">Withdraw</button>
-      <button onclick="location.href='{{ url_for('deposit') }}'">Deposit</button>
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
+<h2>Withdraw</h2>
+<form method="POST" action="{{ url_for('transaction.withdraw') }}">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.amount.label }}<br />
+    {{ form.amount(size=20) }}<br />
+    {% if form.amount.errors %}
+    <ul class="errors">
+      {% for error in form.amount.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
     {% endif %}
-    {% endwith %}
-
-    <h2>Withdraw</h2>
-    <form method="POST" action="{{ url_for('withdraw') }}">
-      {{ form.hidden_tag() }}
-      <div>
-          {{ form.amount.label }}<br>
-          {{ form.amount(size=20) }}<br>
-          {% if form.amount.errors %}
-              <ul class="errors">
-                  {% for error in form.amount.errors %}
-                      <li>{{ error }}</li>
-                  {% endfor %}
-              </ul>
-          {% endif %}
-      </div>
-      <div>
-          {{ form.submit() }}
-      </div>
-  </form>
+  </div>
+  <div>{{ form.submit() }}</div>
+</form>
 {% endblock %}
