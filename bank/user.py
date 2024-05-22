@@ -43,11 +43,9 @@ def login():
         username = form.username.data
         password = form.password.data
         # Original
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
         user = Account.query.filter_by(username=username).first()
-        query = text(f"SELECT * FROM account WHERE username = '{username}'")
         error = None
-# check_password_hash(user.password, password)
+
         if user is None or not (hashlib.sha256(password.encode()).hexdigest() == user.password):
             error = 'Incorrect username or password.'
 
@@ -57,7 +55,7 @@ def login():
 
             session.clear()
             session['user_id'] = user.id
-            return redirect(url_for('show_balance'))
+            return redirect(url_for('transaction.show'))
         flash(error)
 
     if request.method == 'GET' and g.user is not None:
