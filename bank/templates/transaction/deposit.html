@@ -6,6 +6,7 @@ if messages %} {% for category, message in messages %}
 
 <h2>Deposit</h2>
 <form method="POST" action="{{ url_for('transaction.deposit') }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {{ form.hidden_tag() }}
   <div>
     {{ form.amount.label }}<br />
