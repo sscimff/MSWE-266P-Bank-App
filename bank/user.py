@@ -1,22 +1,17 @@
-import datetime
 import hashlib
 import re
-import click
-import flask
-from flask import Flask, render_template, redirect, url_for, flash, session, request, g, Blueprint
-from flask import app
+from flask import render_template, redirect, url_for, flash, session, request, g, Blueprint
 from flask_wtf import FlaskForm
 from sqlalchemy import text
-from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms import StringField, PasswordField, DecimalField, SubmitField
-from wtforms.validators import DataRequired, NumberRange, Length, Regexp, EqualTo
-from flask_sqlalchemy import SQLAlchemy
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
 from functools import wraps
 
 
 from db import db, Account
 
-bp_user = Blueprint('user', __name__, url_prefix='/user')
+bp_user = Blueprint('user', __name__, url_prefix='/user',
+                    template_folder="templates/user")
 
 
 class LoginForm(FlaskForm):
@@ -24,22 +19,15 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+
 class LogoutForm(FlaskForm):
 
     submit = SubmitField('Logout')
-#
-# class RegistrationForm(FlaskForm):
-#     username = StringField('Username', validators=[DataRequired(), Length(min=1, max=127)])
-#     submit = SubmitField('Register')
-#
-# class RegistrationForm(FlaskForm):
-#     username = StringField('Username', validators=[DataRequired(), Length(min=1, max=127), Regexp(r'^[_\-\.0-9a-z]+$', message='User name contains illegal characters.')])
-#     password = PasswordField('Password', validators=[DataRequired(), Length(min=1, max=127), EqualTo('confirm_password', message='Passwords must match.')])
-#     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), Length(min=1, max=127)])
-#     initial_amount = DecimalField('Initial Amount', validators=[DataRequired(), NumberRange(min=0, max=4294967295.99, message='Not a valid deposit or withdrawal amount.'),Regexp('0\\.[0-9]{2}|[1-9][0-9]*\\.[0-9]{2}', message='Invalid amount format.')])
-#
 
 # Login
+
+
 @bp_user.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -54,7 +42,8 @@ def login():
         # For SQL injection
 
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        query = text(f"SELECT * FROM account WHERE username = '{username}' AND password = '{hashed_password}'")
+        query = text(f"SELECT * FROM account WHERE username = '{
+                     username}' AND password = '{hashed_password}'")
         user = db.session.execute(query).first()
         # error = None
 
@@ -67,7 +56,7 @@ def login():
         else:
             session.clear()
             session['user_id'] = user.id
-            return redirect(url_for('show_balance'))
+            return redirect(url_for('transaction.show'))
         # flash(error)
 
     if request.method == 'GET' and g.user is not None:
@@ -77,7 +66,7 @@ def login():
     if target and len(target) > 0:
         return check_redirect(target)
 
-    return render_template('user/login.html', form=form)
+    return render_template('login.html', form=form)
 
 # Logout
 
@@ -89,7 +78,7 @@ def logout():
         session.clear()
         flash('You have been successfully logged out.')
         return redirect(url_for('index'))
-    return render_template('user/logout.html', form=form)
+    return render_template('logout.html', form=form)
 
 
 @bp_user.before_app_request
@@ -138,7 +127,7 @@ def register_start():
         return redirect(url_for('user.register', username=username))
 
     if request.method == 'GET':
-        return render_template("user/register_start.html")
+        return render_template("register_start.html")
 # @bp_user.route("/register_start", methods=['GET', 'POST'])
 # def register_start():
 #     form = RegistrationForm()
@@ -179,7 +168,6 @@ def register():
 
         regex_amount = re.compile('0\\.[0-9]{2}|[1-9][0-9]*\\.[0-9]{2}')
 
-
         if not username:
             error = 'User name is required.'
         elif not password:
@@ -202,9 +190,9 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             flash('Registration successful!', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('transaction.index'))
 
-    return render_template('user/register.html',username=username)
+    return render_template('register.html', username=username)
 #
 # @bp_user.route("/register", methods=['GET', 'POST'])
 # def register():

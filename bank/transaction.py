@@ -1,31 +1,48 @@
-from flask import Blueprint, render_template, flash, redirect, url_for
+from flask import Blueprint, render_template, flash, redirect, url_for, session, g
 from db import Account, db
 from transaction_form import DepositForm, WithdrawForm
 
-transaction = Blueprint("transaction", __name__, static_folder="static",
-                        template_folder="templates/transaction")
+bp_transaction = Blueprint("transaction", __name__,
+                           template_folder="templates/transaction")
 
 
-@transaction.route("/")
+@bp_transaction.before_request
+def load_logged_in_user():
+    user_id = session.get('user_id')
+    if user_id is None:
+        g.user = None
+    else:
+        g.user = Account.query.get(user_id)
+
+
+@bp_transaction.route("/")
 def index():
-    return render_template('index.html')
+    if g.user is None:
+        return redirect(url_for('user.login'))
+
+    account = g.user
+    return render_template("index.html", account=account)
 
 
-@transaction.route("/show")
+@bp_transaction.route("/show")
 def show():
-    # TODO: Check current user
-    account = db.get_or_404(Account, 1)
+    if g.user is None:
+        return redirect(url_for('user.login'))
+
+    account = g.user
     return render_template("show_balance.html", account=account)
 
 
-@transaction.route('/deposit', methods=['GET', 'POST'])
+@bp_transaction.route('/deposit', methods=['GET', 'POST'])
 def deposit():
-    # Check auth
+    if g.user is None:
+        return redirect(url_for('user.login'))
+
     form = DepositForm()
+    account = g.user
+
     if form.validate_on_submit():
         amount = form.amount.data
-        # TODO: Check current user
-        account = Account.query.first()
         if account:
             account.balance += float(amount)
             db.session.commit()
@@ -33,17 +50,19 @@ def deposit():
             return redirect(url_for('transaction.show'))
         else:
             flash('Account not found.', 'danger')
-    return render_template('deposit.html', form=form)
+
+    return render_template('deposit.html', form=form, account=account)
 
 
-@transaction.route('/withdraw', methods=['GET', 'POST'])
+@bp_transaction.route('/withdraw', methods=['GET', 'POST'])
 def withdraw():
-    # Check auth
+    if g.user is None:
+        return redirect(url_for('user.login'))
+
     form = WithdrawForm()
+    account = g.user
     if form.validate_on_submit():
         amount = form.amount.data
-        # TODO: Check current user
-        account = Account.query.first()
         if account:
             # Valid
             if account.balance >= amount:
@@ -56,4 +75,4 @@ def withdraw():
                 flash('Insufficient funds.', 'danger')
         else:
             flash('Account not found.', 'danger')
-    return render_template('withdraw.html', form=form)
+    return render_template('withdraw.html', form=form, account=account)

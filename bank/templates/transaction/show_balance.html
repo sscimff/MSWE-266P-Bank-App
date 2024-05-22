@@ -1,4 +1,4 @@
-{% extends 'transaction/index.html' %} {% block title %}Transaction - My Bank
-App{% endblock %} {% block content %}
-<h2>Show Balance</h2>
-{{ account.username }} {{ "%.2f"|format(account.balance) }} {% endblock %} Í
+{% extends 'transaction/index.html' %} {% block title %}Transaction{% endblock
+%} {% block detail %}
+<h2>Your Current Balance</h2>
+$ {{ "%.2f"|format(account.balance) }} {% endblock %}

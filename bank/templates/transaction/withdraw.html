@@ -1,5 +1,5 @@
 {% extends 'transaction/index.html' %} {% block title %}Transaction{% endblock
-%} {% block content %} {% with messages =
+%} {% block detail %} {% with messages =
 get_flashed_messages(with_categories=true) %} {% if messages %} {% for category,
 message in messages %}
 <div class="alert alert-{{ category }}">{{ message }}</div>

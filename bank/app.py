@@ -1,9 +1,9 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, render_template
-from flask_wtf.csrf import CSRFProtect
 from db import db
-from transaction import transaction
+from transaction import bp_transaction
+from user import bp_user
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -20,9 +20,8 @@ def create_app():
     )
 
     db.init_app(app)
-    app.register_blueprint(transaction, url_prefix="")
-    # TODO: Register
-    # app.register_blueprint(register, url_prefix="")
+    app.register_blueprint(bp_transaction, url_prefix="")
+    app.register_blueprint(bp_user, url_prefix="")
 
     return app
 
