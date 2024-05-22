@@ -6,6 +6,7 @@ from transaction import bp_transaction
 from user import bp_user
 import logging
 logging.basicConfig(level=logging.DEBUG)
+from flask_wtf import CSRFProtect
 
 load_dotenv()
 
@@ -22,6 +23,7 @@ def create_app():
     db.init_app(app)
     app.register_blueprint(bp_transaction, url_prefix="")
     app.register_blueprint(bp_user, url_prefix="")
+    csrf = CSRFProtect(app)
 
     return app
 

@@ -1,17 +1,25 @@
+from db import db, Account
+import datetime
 import hashlib
 import re
-from flask import render_template, redirect, url_for, flash, session, request, g, Blueprint
+import click
+import flask
+from flask import Flask, render_template, redirect, url_for, flash, session, request, g, Blueprint
+from flask import app
 from flask_wtf import FlaskForm
 from sqlalchemy import text
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired
+from werkzeug.security import generate_password_hash, check_password_hash
+from wtforms import StringField, PasswordField, DecimalField, SubmitField
+from wtforms.validators import DataRequired, NumberRange, Length, Regexp, EqualTo
+from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
-
-
-from db import db, Account
+import os  # CWE284
 
 bp_user = Blueprint('user', __name__, url_prefix='/user',
                     template_folder="templates/user")
+
+
+# user_bp = Blueprint('user', __name__)
 
 
 class LoginForm(FlaskForm):
@@ -35,37 +43,25 @@ def login():
         username = form.username.data
         password = form.password.data
         # Original
-        # user = Account.query.filter_by(username=username).first()
-        # query = text(f"SELECT * FROM account WHERE username = '{username}'")
-        # hashed_password = generate_password_hash(password)
-
-        # For SQL injection
-
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        query = text(f"SELECT * FROM account WHERE username = '{
-                     username}' AND password = '{hashed_password}'")
-        user = db.session.execute(query).first()
-        # error = None
+        user = Account.query.filter_by(username=username).first()
+        query = text(f"SELECT * FROM account WHERE username = '{username}'")
+        error = None
+# check_password_hash(user.password, password)
+        if user is None or not (hashlib.sha256(password.encode()).hexdigest() == user.password):
+            error = 'Incorrect username or password.'
 
-        # if user is None or not check_password_hash(user.password, password):
-        #     error = 'Incorrect username or password.'
+        # if user is None:
+        #     flash('Incorrect username or password.')
+        if error is None:
 
-        if user is None:
-            flash('Incorrect username or password.')
-        # if error is None:
-        else:
             session.clear()
             session['user_id'] = user.id
-            return redirect(url_for('transaction.show'))
-        # flash(error)
+            return redirect(url_for('show_balance'))
+        flash(error)
 
     if request.method == 'GET' and g.user is not None:
         return redirect(url_for('index'))
-
-    target = request.args.get('target')
-    if target and len(target) > 0:
-        return check_redirect(target)
-
     return render_template('login.html', form=form)
 
 # Logout
@@ -75,10 +71,23 @@ def login():
 def logout():
     form = LogoutForm()
     if form.validate_on_submit():
-        session.clear()
-        flash('You have been successfully logged out.')
-        return redirect(url_for('transaction.index'))
+        if os.getenv('ENV') == 'development':
+            # CWE-284: Simulate incomplete session clearing in the development environment
+            session.pop('user_id', None)
+            flash('Log out successfully but data did not clear.')
+        else:
+            # Correct session clearing in the production environment
+            session.clear()
+            flash('You have been successfully logged out.')
+        return redirect(url_for('user.logout_confirm'))
     return render_template('logout.html', form=form)
+
+# Add another logout confirm route
+
+
+@bp_user.route('/logout_confirm')
+def logout_confirm():
+    return render_template('logout_confirm.html')
 
 
 @bp_user.before_app_request
@@ -128,31 +137,6 @@ def register_start():
 
     if request.method == 'GET':
         return render_template("register_start.html")
-# @bp_user.route("/register_start", methods=['GET', 'POST'])
-# def register_start():
-#     form = RegistrationForm()
-#     regex_chars = re.compile('[_\\-\\.0-9a-z]+')
-#     if form.validate_on_submit():
-#         username = form.username.data
-#
-#         existing_user = Account.query.filter_by(username=username).first()
-#         if existing_user:
-#             error = 'Username already exists. Please choose a different one.'
-#             flash(error)
-#             return redirect(url_for('user.register_start'))
-#         elif len(username) > 127:
-#             error = 'User name is too long.'
-#             flash(error)
-#             return redirect(url_for('user.register_start'))
-#
-#         elif not regex_chars.fullmatch(username):
-#             error = 'User name contains illegal characters.'
-#             flash(error)
-#             return redirect(url_for('user.register_start'))
-#
-#         return redirect(url_for('user.register', username=username))
-#
-#     return render_template("user/register_start.html", form=form)
 
 
 @bp_user.route("/register", methods=['GET', 'POST'])
@@ -189,19 +173,7 @@ def register():
                 username=username, password=hashed_password, balance=float(initial_amount))
             db.session.add(new_user)
             db.session.commit()
-            flash('Registration successful!', 'success')
-            return redirect(url_for('transaction.index'))
+            session['success_message'] = 'Registration successful!'
+            return redirect(url_for('index'))
 
     return render_template('register.html', username=username)
-#
-# @bp_user.route("/register", methods=['GET', 'POST'])
-# def register():
-#     form = RegistrationForm()
-#     if form.validate_on_submit():
-#         hashed_password = hashlib.sha256(form.password.data.encode()).hexdigest()
-#         new_user = Account(username=form.username.data, password=hashed_password, balance=form.initial_amount.data)
-#         db.session.add(new_user)
-#         db.session.commit()
-#         flash('Registration successful!', 'success')
-#         return redirect(url_for('index'))
-#     return render_template('user/register.html', form=form)
