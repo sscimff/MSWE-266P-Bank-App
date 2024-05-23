@@ -45,8 +45,11 @@ def show():
 
 @bp_transaction.route('/deposit', methods=['GET', 'POST'])
 def deposit():
+    if g.user is None:
+        account = Account.query.first()
+    account = g.user
+
     form = DepositForm()
-    account = Account.query.first()
 
     if form.validate_on_submit():
         amount = form.amount.data
@@ -90,8 +93,7 @@ def save_transaction():
     filename = request.form.get('filename')
 
     safe_filename = re.sub(r'[^a-zA-Z0-9_\-]', '_', filename)
-    safe_filename = f"{safe_filename}_{
-        datetime.now().strftime('%Y%m%d%H%M%S')}.txt"
+    safe_filename = f"{safe_filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}.txt"
 
     data = f"Current Balance: ${g.user.balance:.2f}"
 
