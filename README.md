@@ -16,7 +16,7 @@ source venv/bin/activate
 #Windows
 venv\Scripts\activate.bat
 ```
--Sets the Flask app to app.py
+- Sets the Flask app to app.py
 
 ```shell=
 #MacOs
@@ -38,3 +38,11 @@ pip install -r requirements.txt
 cd bank
 flask run
 ```
+
+- The server would run on http://127.0.0.1:5000 
+
+## Usage
+
+- One user has already been registered:
+  - **username**: user1
+  - **password**: 123
