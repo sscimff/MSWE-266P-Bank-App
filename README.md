@@ -10,8 +10,22 @@ python3 -m venv venv
 ```
 - Activate virtual environment
 ```shell=
+#MacOs
 source venv/bin/activate
+
+#Windows
+venv\Scripts\activate.bat
 ```
+-Sets the Flask app to app.py
+
+```shell=
+#MacOs
+export FLASK_APP=app.py
+
+#Windows
+set FLASK_APP=app.py
+```
+
 - Install
 
 ```shell=
@@ -22,10 +36,5 @@ pip install -r requirements.txt
 
 ```shell=
 cd bank
-flask run -port 8000
+flask run
 ```
-
-## Note
-
-`flask init-db`
-`export FLASK_APP=app.py`
