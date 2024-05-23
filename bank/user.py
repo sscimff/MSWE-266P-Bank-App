@@ -18,10 +18,6 @@ import os  # CWE284
 bp_user = Blueprint('user', __name__, url_prefix='/user',
                     template_folder="templates/user")
 
-
-# user_bp = Blueprint('user', __name__)
-
-
 class LoginForm(FlaskForm):
 
     username = StringField('Username', validators=[DataRequired()])
@@ -34,8 +30,6 @@ class LogoutForm(FlaskForm):
     submit = SubmitField('Logout')
 
 # Login
-
-
 @bp_user.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -49,10 +43,7 @@ def login():
         if user is None or not (hashlib.sha256(password.encode()).hexdigest() == user.password):
             error = 'Incorrect username or password.'
 
-        # if user is None:
-        #     flash('Incorrect username or password.')
         if error is None:
-
             session.clear()
             session['user_id'] = user.id
             return redirect(url_for('transaction.show'))
@@ -64,7 +55,6 @@ def login():
     return render_template('login.html', form=form)
 
 # Logout
-
 
 @bp_user.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -99,8 +89,6 @@ def load_logged_in_user():
         g.user = Account.query.get(user_id)
 
 # Register
-
-
 @bp_user.route("/register_start", methods=['GET', 'POST'])
 def register_start():
     regex_chars = re.compile('[_\\-\\.0-9a-z]+')
@@ -127,7 +115,6 @@ def register_start():
     if request.method == 'GET':
         return render_template("register_start.html")
 
-
 @bp_user.route("/register", methods=['GET', 'POST'])
 def register():
     username = request.args.get('username')
@@ -136,23 +123,21 @@ def register():
         password = request.form['password']
         confirm_password = request.form['confirm_password']
         initial_amount = request.form['initial_amount']
-
         error = None
-
         regex_amount = re.compile('0\\.[0-9]{2}|[1-9][0-9]*\\.[0-9]{2}')
 
         if not username:
-            error = 'User name is required.'
+            error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
         elif not confirm_password:
             error = 'Confirm Password is required.'
         elif password != confirm_password:
-            error = 'Passwords do not match.'
+            error = 'Passwords do not match with each other.'
         elif len(password) > 127:
-            error = 'Password is too long.'
+            error = 'Password is too long, no longer than 127 characters.'
         elif regex_amount.fullmatch(initial_amount) is None or float(initial_amount) > 4294967295.99:
-            error = 'Not a valid deposit or withdrawal amount'
+            error = 'The amount is not valid.'
 
         if error:
             flash(error)
@@ -162,7 +147,6 @@ def register():
                 username=username, password=hashed_password, balance=float(initial_amount))
             db.session.add(new_user)
             db.session.commit()
-            # session['success_message'] = 'Registration successful!'
             flash('Registration successful!', 'success')
             return redirect(url_for('transaction.index'))
 
