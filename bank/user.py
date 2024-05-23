@@ -61,9 +61,6 @@ def login():
     if request.method == 'GET' and g.user is not None:
         return redirect(url_for('transaction.index'))
 
-    target = request.args.get('target')
-    if target and len(target) > 0:
-        return check_redirect(target)
     return render_template('login.html', form=form)
 
 # Logout
@@ -100,16 +97,6 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = Account.query.get(user_id)
-
-
-def check_redirect(target):
-    whitelist = ['https://uci.edu']
-    if target.startswith('http:') or target.startswith('https://'):
-        if target in whitelist:
-            return redirect(target)
-        else:
-            flash('Redirection to the specified URL is not allowed.')
-            return redirect(url_for('user.login'))
 
 # Register
 
