@@ -1,4 +1,15 @@
 {% extends 'transaction/index.html' %} {% block title %}Transaction{% endblock
 %} {% block detail %}
 <h2>Your Current Balance</h2>
-$ {{ "%.2f"|format(account.balance) }} {% endblock %}
+<p>$ {{ "%.2f"|format(account.balance) }}</p>
+<form
+  action="{{ url_for('transaction.save_transaction') }}"
+  method="post"
+  style="margin-top: 20px"
+>
+  {{ form.hidden_tag() }}
+  <label for="filename">Enter desired filename:</label>
+  <input type="text" id="filename" name="filename" required />
+  <button type="submit" class="save-button">Save Transaction History</button>
+</form>
+{% endblock %}
