@@ -40,7 +40,7 @@ def login():
         user = Account.query.filter_by(username=username).first()
         error = None
 
-        if user is None or not (hashlib.sha256(password.encode()).hexdigest() == user.password):
+        if user is None or not (generate_password_hash(password) == user.password):
             error = 'Incorrect username or password.'
 
         if error is None:
@@ -142,7 +142,8 @@ def register():
         if error:
             flash(error)
         else:
-            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            # This enhances security by using a cryptographic hash function specifically designed for password hashing
+            hashed_password = generate_password_hash(password)
             new_user = Account(
                 username=username, password=hashed_password, balance=float(initial_amount))
             db.session.add(new_user)
