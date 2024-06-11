@@ -60,34 +60,39 @@ def login():
 def logout():
     form = LogoutForm()
     if form.validate_on_submit():
-        if os.getenv('ENV') == 'development':
-            # CWE-284: Simulate incomplete session clearing in the development environment
-            session.pop('user_id', None)
-            flash('Log out successfully but data did not clear.')
-        else:
-            # Correct session clearing in the production environment
-            session.clear()
-            flash('You have been successfully logged out.')
+        session.clear()  # Clear all session data
+        flash('You have been successfully logged out.')
         return redirect(url_for('user.logout_confirm'))
     return render_template('logout.html', form=form)
 
 # Add another logout confirm route
 
-
 @bp_user.route('/logout_confirm')
 def logout_confirm():
     return render_template('logout_confirm.html')
 
-
 @bp_user.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
-
     if user_id is None:
         g.user = None
     else:
         g.user = Account.query.get(user_id)
+#601:URL Redirection to Untrusted Site ('Open Redirect')
+def check_redirect(target):
+    whitelist = ['https://uci.edu']
+    parsed_url = urlparse(target)
 
+    if parsed_url.scheme in ['http', 'https']:
+        if any(parsed_url.netloc == urlparse(url).netloc for url in whitelist):
+            return redirect(target)
+        else:
+            flash('Redirection to the specified URL is not allowed.')
+            return redirect(url_for('user.login'))
+    else:
+        flash('Invalid URL scheme.')
+        return redirect(url_for('user.login'))
+    
 # Register
 @bp_user.route("/register_start", methods=['GET', 'POST'])
 def register_start():
