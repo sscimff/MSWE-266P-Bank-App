@@ -46,17 +46,20 @@ def show():
 @bp_transaction.route('/deposit', methods=['GET', 'POST'])
 def deposit():
     if g.user is None:
-        account = Account.query.first()
-    account = g.user
+        return redirect(url_for('user.login'))
 
     form = DepositForm()
+    account = g.user
 
     if form.validate_on_submit():
         amount = form.amount.data
-        account.balance += float(amount)
-        db.session.commit()
-        flash(f'Successfully deposited ${amount:.2f}', 'success')
-        return redirect(url_for('transaction.show'))
+        if account:
+            account.balance += float(amount)
+            db.session.commit()
+            flash(f'Successfully deposited ${amount:.2f}', 'success')
+            return redirect(url_for('transaction.show'))
+        else:
+            flash('Account not found.', 'danger')
 
     return render_template('deposit.html', form=form, account=account)
 
@@ -72,7 +75,9 @@ def withdraw():
         amount = form.amount.data
         if account:
             # Valid
-            if account.balance >= amount:
+            if amount <= 0:
+                flash('Invalid withdrawal amount.', 'danger')
+            elif account.balance >= amount:
                 account.balance -= float(amount)
                 db.session.commit()
                 flash(f'Successfully withdrew ${amount:.2f}', 'success')
